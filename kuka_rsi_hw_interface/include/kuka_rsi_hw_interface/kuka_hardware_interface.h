@@ -59,18 +59,22 @@
 // Timers
 #include <chrono>
 
-// UDP server
-#include <kuka_rsi_hw_interface/udp_server.h>
+//SERVER
+//#include <kuka_rsi_hw_interface/udp_server.h>
+#include <kuka_rsi_hw_interface/tcp_server.h>
 
 // RSI
 #include <kuka_rsi_hw_interface/rsi_state.h>
 #include <kuka_rsi_hw_interface/rsi_command.h>
 
+//redis subscriber
+#include "kuka_rsi_hw_interface/teleopMsg.h"
+
+//transformations
+#include "kuka_rsi_hw_interface/transformation.h"
+
 namespace kuka_rsi_hw_interface
 {
-
-static const double RAD2DEG = 57.295779513082323;
-static const double DEG2RAD = 0.017453292519943295;
 
 class KukaHardwareInterface : public hardware_interface::RobotHW
 {
@@ -79,6 +83,26 @@ private:
 
   // ROS node handle
   ros::NodeHandle nh_;
+
+  //remote control
+  Eigen::Matrix4f tool2world;
+  ros::Subscriber teleop_subscriber;
+  std::vector<float> pose_current;
+  std::vector<float> pose_old;
+  void get_pose(const kuka_rsi_hw_interface::teleopMsg::ConstPtr &msg);
+  bool robot_init = false;
+
+  float sensitivity = 200.0f;
+  float scaleFactor = 200.0f;
+  float stepSize = 0.8f; //mm/step
+  float stepSize_rot = 0.2f; //deg/step
+
+  /******************/
+  //PID
+  float err_I = 0.0f;
+  float KP = 3.0f;
+  float KI = 1.2f;
+  /******************/
 
   unsigned int n_dof_;
 
@@ -90,17 +114,23 @@ private:
   std::vector<double> joint_position_command_;
   std::vector<double> joint_velocity_command_;
   std::vector<double> joint_effort_command_;
+  std::vector<double> cartesian_coordinate_;
 
   // RSI
   RSIState rsi_state_;
   RSICommand rsi_command_;
+
   std::vector<double> rsi_initial_joint_positions_;
   std::vector<double> rsi_joint_position_corrections_;
+  std::vector<double> rsi_initial_cartesian_coordinate_;
+  std::vector<double> rsi_target_cartesian_coordinate_;
+  std::vector<double> rsi_cartesian_coordinate_corrections_;
+
   unsigned long long ipoc_;
 
   std::unique_ptr<realtime_tools::RealtimePublisher<std_msgs::String> > rt_rsi_pub_;
 
-  std::unique_ptr<UDPServer> server_;
+  std::unique_ptr<TCPServer> server_;
   std::string local_host_;
   int local_port_;
   std::string remote_host_;
@@ -126,7 +156,6 @@ public:
   void configure();
   bool read(const ros::Time time, const ros::Duration period);
   bool write(const ros::Time time, const ros::Duration period);
-
 };
 
 } // namespace kuka_rsi_hw_interface

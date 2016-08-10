@@ -1,4 +1,4 @@
 # KRL CODE
 
-1. copy `*.src` files to "KRC:\R1\Program"
-2. copy the rest of the files to "C:\KRC\ROBOTER\Config\User\Common\SensorInterface"
+1. copy `*.src` and '*.dat' files to "KRC:\R1\Program"
+2. copy the '*.xml' file to KRL INIT folder

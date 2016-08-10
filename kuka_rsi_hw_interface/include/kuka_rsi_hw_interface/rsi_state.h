@@ -48,10 +48,10 @@ namespace kuka_rsi_hw_interface
 class RSIState
 {
 
-private:
+public:
   std::string xml_doc_;
 
-public:
+//public:
   RSIState() :
     positions(6, 0.0),
     initial_positions(6, 0.0),
@@ -87,22 +87,6 @@ RSIState::RSIState(std::string xml_doc) :
   bufferdoc.Parse(xml_doc_.c_str());
   // Get the Rob node:
   TiXmlElement* rob = bufferdoc.FirstChildElement("Rob");
-  // Extract axis specific actual position
-  TiXmlElement* AIPos_el = rob->FirstChildElement("AIPos");
-  AIPos_el->Attribute("A1", &positions[0]);
-  AIPos_el->Attribute("A2", &positions[1]);
-  AIPos_el->Attribute("A3", &positions[2]);
-  AIPos_el->Attribute("A4", &positions[3]);
-  AIPos_el->Attribute("A5", &positions[4]);
-  AIPos_el->Attribute("A6", &positions[5]);
-  // Extract axis specific setpoint position
-  TiXmlElement* ASPos_el = rob->FirstChildElement("ASPos");
-  ASPos_el->Attribute("A1", &initial_positions[0]);
-  ASPos_el->Attribute("A2", &initial_positions[1]);
-  ASPos_el->Attribute("A3", &initial_positions[2]);
-  ASPos_el->Attribute("A4", &initial_positions[3]);
-  ASPos_el->Attribute("A5", &initial_positions[4]);
-  ASPos_el->Attribute("A6", &initial_positions[5]);
   // Extract cartesian actual position
   TiXmlElement* RIst_el = rob->FirstChildElement("RIst");
   RIst_el->Attribute("X", &cart_position[0]);
@@ -119,6 +103,22 @@ RSIState::RSIState(std::string xml_doc) :
   RSol_el->Attribute("A", &initial_cart_position[3]);
   RSol_el->Attribute("B", &initial_cart_position[4]);
   RSol_el->Attribute("C", &initial_cart_position[5]);
+  // Extract axis specific actual position
+  TiXmlElement* AIPos_el = rob->FirstChildElement("AIPos");
+  AIPos_el->Attribute("A1", &positions[0]);
+  AIPos_el->Attribute("A2", &positions[1]);
+  AIPos_el->Attribute("A3", &positions[2]);
+  AIPos_el->Attribute("A4", &positions[3]);
+  AIPos_el->Attribute("A5", &positions[4]);
+  AIPos_el->Attribute("A6", &positions[5]);
+  // Extract axis specific setpoint position
+  TiXmlElement* ASPos_el = rob->FirstChildElement("ASPos");
+  ASPos_el->Attribute("A1", &initial_positions[0]);
+  ASPos_el->Attribute("A2", &initial_positions[1]);
+  ASPos_el->Attribute("A3", &initial_positions[2]);
+  ASPos_el->Attribute("A4", &initial_positions[3]);
+  ASPos_el->Attribute("A5", &initial_positions[4]);
+  ASPos_el->Attribute("A6", &initial_positions[5]);
   // Get the IPOC timestamp
   TiXmlElement* ipoc_el = rob->FirstChildElement("IPOC");
   ipoc = std::stoull(ipoc_el->FirstChild()->Value());

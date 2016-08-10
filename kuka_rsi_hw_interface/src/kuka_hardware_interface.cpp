@@ -38,9 +38,7 @@
  */
 
 #include <kuka_rsi_hw_interface/kuka_hardware_interface.h>
-
 #include <stdexcept>
-
 
 namespace kuka_rsi_hw_interface
 {
@@ -48,7 +46,8 @@ namespace kuka_rsi_hw_interface
 KukaHardwareInterface::KukaHardwareInterface() :
     joint_position_(6, 0.0), joint_velocity_(6, 0.0), joint_effort_(6, 0.0), joint_position_command_(6, 0.0), joint_velocity_command_(
         6, 0.0), joint_effort_command_(6, 0.0), joint_names_(6), rsi_initial_joint_positions_(6, 0.0), rsi_joint_position_corrections_(
-        6, 0.0), ipoc_(0), n_dof_(6)
+        6, 0.0), ipoc_(0), n_dof_(6), cartesian_coordinate_(6, 0.0), rsi_initial_cartesian_coordinate_(6, 0.0),
+        rsi_cartesian_coordinate_corrections_(6, 0.0), pose_current(6,0.0), pose_old(6,0.0), rsi_target_cartesian_coordinate_(6.0, 0.0)
 {
   in_buffer_.resize(1024);
   out_buffer_.resize(1024);
@@ -81,12 +80,18 @@ KukaHardwareInterface::KukaHardwareInterface() :
   registerInterface(&joint_state_interface_);
   registerInterface(&position_joint_interface_);
 
+  teleop_subscriber = nh_.subscribe("teleop", 1,  &KukaHardwareInterface::get_pose, this);
+
   ROS_INFO_STREAM_NAMED("hardware_interface", "Loaded kuka_rsi_hardware_interface");
 }
 
 KukaHardwareInterface::~KukaHardwareInterface()
 {
+}
 
+void KukaHardwareInterface::get_pose(const kuka_rsi_hw_interface::teleopMsg::ConstPtr &msg){
+ //process teleopMsgs, set rsi_target_cartesian_coordinate_
+ //check for the initialization before processing the values 
 }
 
 bool KukaHardwareInterface::read(const ros::Time time, const ros::Duration period)
@@ -107,7 +112,9 @@ bool KukaHardwareInterface::read(const ros::Time time, const ros::Duration perio
   for (std::size_t i = 0; i < n_dof_; ++i)
   {
     joint_position_[i] = DEG2RAD * rsi_state_.positions[i];
+    cartesian_coordinate_[i] = rsi_state_.cart_position[i];
   }
+
   ipoc_ = rsi_state_.ipoc;
 
   return true;
@@ -115,41 +122,62 @@ bool KukaHardwareInterface::read(const ros::Time time, const ros::Duration perio
 
 bool KukaHardwareInterface::write(const ros::Time time, const ros::Duration period)
 {
-  out_buffer_.resize(1024);
+    out_buffer_.resize(1024);
+//    checkBoundingBox();
 
-  for (std::size_t i = 0; i < n_dof_; ++i)
-  {
-    rsi_joint_position_corrections_[i] = (RAD2DEG * joint_position_command_[i]) - rsi_initial_joint_positions_[i];
-  }
+    out_buffer_ = RSICommand(rsi_cartesian_coordinate_corrections_,rsi_joint_position_corrections_, ipoc_).xml_doc;
+    server_->send(out_buffer_);
 
-  out_buffer_ = RSICommand(rsi_joint_position_corrections_, ipoc_).xml_doc;
-  server_->send(out_buffer_);
+    //robot is controlled in tool coordinate, hence an update for transformations is required in every step 
+    tool2world = create_homogeneous_transform(cartesian_coordinate_[0],
+                                              cartesian_coordinate_[1],
+                                              cartesian_coordinate_[2],
+                                              cartesian_coordinate_[5]*DEG2RAD,
+                                              cartesian_coordinate_[4]*DEG2RAD,
+                                              cartesian_coordinate_[3]*DEG2RAD);
 
+    for(uint i=0; i<6; i++)
+        rsi_cartesian_coordinate_corrections_[i] = 0.0f;
+    
   return true;
 }
 
 void KukaHardwareInterface::start()
 {
+    in_buffer_.resize(1024);
   // Wait for connection from robot
-  server_.reset(new UDPServer(local_host_, local_port_));
+  server_.reset(new TCPServer(local_port_));
 
-  ROS_INFO_STREAM_NAMED("kuka_hardware_interface", "Waiting for robot!");
+  //ROS_INFO_STREAM_NAMED("kuka_hardware_interface", "Waiting for robot!");
 
-  int bytes = server_->recv(in_buffer_);
-
+  int bytes = server_->recv(in_buffer_);  
+  std::cout << " ********** received **********" << std::endl;
+  std::cout << in_buffer_.c_str() << std::endl;
   rsi_state_ = RSIState(in_buffer_);
   for (std::size_t i = 0; i < n_dof_; ++i)
   {
     joint_position_[i] = DEG2RAD * rsi_state_.positions[i];
     joint_position_command_[i] = joint_position_[i];
     rsi_initial_joint_positions_[i] = rsi_state_.initial_positions[i];
+
+    cartesian_coordinate_[i] = rsi_state_.cart_position[i];
+    rsi_initial_cartesian_coordinate_[i] = rsi_state_.initial_cart_position[i];
+    rsi_target_cartesian_coordinate_[i] = rsi_state_.initial_cart_position[i];
   }
+
+  tool2world = create_homogeneous_transform(cartesian_coordinate_[0],
+                                            cartesian_coordinate_[1],
+                                            cartesian_coordinate_[2],
+                                            cartesian_coordinate_[5]*DEG2RAD,
+                                            cartesian_coordinate_[4]*DEG2RAD,
+                                            cartesian_coordinate_[3]*DEG2RAD);
   ipoc_ = rsi_state_.ipoc;
-  out_buffer_ = RSICommand(rsi_joint_position_corrections_, ipoc_).xml_doc;
+  out_buffer_ = RSICommand(rsi_cartesian_coordinate_corrections_, rsi_joint_position_corrections_, ipoc_).xml_doc;
   server_->send(out_buffer_);
   // Set receive timeout to 1 second
-  server_->set_timeout(1000);
+  //server_->set_timeout(1000);
   ROS_INFO_STREAM_NAMED("kuka_hardware_interface", "Got connection from robot");
+  robot_init = true;
 
 }
 

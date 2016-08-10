@@ -11,11 +11,16 @@ find_package(catkin REQUIRED COMPONENTS
   realtime_tools
   roscpp
   std_msgs
+  message_generation
 )
 
 find_package(Boost REQUIRED COMPONENTS system)
 find_package(TinyXML REQUIRED)
 
+add_message_files(
+ FILES
+ teleopMsg.msg
+)
 
 catkin_package(
   INCLUDE_DIRS

@@ -49,7 +49,7 @@ class RSICommand
 {
 public:
   RSICommand();
-  RSICommand(std::vector<double> position_corrections, unsigned long long ipoc);
+  RSICommand(std::vector<double> cartesian_correction, std::vector<double> position_corrections, unsigned long long ipoc);
   std::string xml_doc;
 };
 
@@ -58,24 +58,69 @@ RSICommand::RSICommand()
   // Intentionally empty
 }
 
-RSICommand::RSICommand(std::vector<double> joint_position_correction, unsigned long long ipoc)
+RSICommand::RSICommand(std::vector<double> cartesian_coordinate_correction,
+                       std::vector<double> joint_position_correction,
+                       unsigned long long ipoc)
 {
   TiXmlDocument doc;
   TiXmlElement* root = new TiXmlElement("Sen");
   root->SetAttribute("Type", "ImFree");
-  TiXmlElement* el = new TiXmlElement("AK");
+
+  TiXmlElement* el = new TiXmlElement("DEF_EStr");
+  el->LinkEndChild(new TiXmlText("Free config!"));
+  root->LinkEndChild(el);
+
   // Add string attribute
+  el = new TiXmlElement("RKorr");
+  el->SetAttribute("X", std::to_string(cartesian_coordinate_correction[0]));
+  el->SetAttribute("Y", std::to_string(cartesian_coordinate_correction[1]));
+  el->SetAttribute("Z", std::to_string(cartesian_coordinate_correction[2]));
+  el->SetAttribute("A", std::to_string(cartesian_coordinate_correction[3]));
+  el->SetAttribute("B", std::to_string(cartesian_coordinate_correction[4]));
+  el->SetAttribute("C", std::to_string(cartesian_coordinate_correction[5]));
+  root->LinkEndChild(el);
+
+  // Add string attribute
+  el = new TiXmlElement("AKorr");
   el->SetAttribute("A1", std::to_string(joint_position_correction[0]));
   el->SetAttribute("A2", std::to_string(joint_position_correction[1]));
   el->SetAttribute("A3", std::to_string(joint_position_correction[2]));
   el->SetAttribute("A4", std::to_string(joint_position_correction[3]));
   el->SetAttribute("A5", std::to_string(joint_position_correction[4]));
   el->SetAttribute("A6", std::to_string(joint_position_correction[5]));
-
   root->LinkEndChild(el);
+
+  // Add string attribute
+  el = new TiXmlElement("EKorr");
+  el->SetAttribute("E1", std::to_string(0.0));
+  el->SetAttribute("E2", std::to_string(0.0));
+  el->SetAttribute("E3", std::to_string(0.0));
+  el->SetAttribute("E4", std::to_string(0.0));
+  el->SetAttribute("E5", std::to_string(0.0));
+  el->SetAttribute("E6", std::to_string(0.0));
+  root->LinkEndChild(el);
+
+  el = new TiXmlElement("Tech");
+  el->SetAttribute("T21",  std::to_string(0.0));
+  el->SetAttribute("T22",  std::to_string(0.0));
+  el->SetAttribute("T23",  std::to_string(0.0));
+  el->SetAttribute("T24",  std::to_string(0.0));
+  el->SetAttribute("T25",  std::to_string(0.0));
+  el->SetAttribute("T26",  std::to_string(0.0));
+  el->SetAttribute("T27",  std::to_string(0.0));
+  el->SetAttribute("T28",  std::to_string(0.0));
+  el->SetAttribute("T29",  std::to_string(0.0));
+  el->SetAttribute("T210", std::to_string(0.0));
+  root->LinkEndChild(el);
+
+  el = new TiXmlElement("DiO");
+  el->LinkEndChild(new TiXmlText(std::to_string(125)));
+  root->LinkEndChild(el);
+
   el = new TiXmlElement("IPOC");
   el->LinkEndChild(new TiXmlText(std::to_string(ipoc)));
   root->LinkEndChild(el);
+
   doc.LinkEndChild(root);
   TiXmlPrinter printer;
   printer.SetStreamPrinting();

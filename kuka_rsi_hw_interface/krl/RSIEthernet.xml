@@ -1,0 +1,79 @@
+<ROOT>
+   <CONFIG>
+      <IP_NUMBER>192.0.1.2</IP_NUMBER>    <!-- IP Number of the socket !-->
+      <PORT>6008</PORT>                   <!-- Port Number of the socket !-->
+      <PROTOCOL>TCP</PROTOCOL>            <!-- TCP or UDP, Protocol of the socket !-->
+      <SENTYPE>ImFree</SENTYPE>           <!-- The name of your system send in <Sen Type="" > !-->
+      <PROTOCOLLENGTH>Off</PROTOCOLLENGTH>  <!-- On or Off, Send the length of data in bytes before XML data begins!-->
+      <ONLYSEND>FALSE</ONLYSEND>          <!-- TRUE means the client don't expect a answer. Do not send anything to robot!-->
+   </CONFIG>
+   <!-- RSI Data: TYPE=  "BOOL", "STRING", "LONG", "DOUBLE" !-->
+   <!-- INDX= "INTERNAL" switch on internal read values. Needed by DEF_...!-->
+   <!-- INDX= "nmb" Input/Output index of RSI-Object / Maximum of RSI Channels: 64 !-->
+   <!-- UNIT: The same like RSI Units, insert decimal or hex (0x......) values. !-->
+   <!-- HOLDON="1", set this output index of RSI Object to the last value  !-->   
+   <!-- DEF_Delay count the late packages and send it back to server  !-->
+   <!-- DEF_Tech: .C = advance .T = main run / .C1 advance set function generator 1 !-->
+   
+<Rob Type="KUKA">
+<RIst X="2080.0230" Y="0.0000" Z="1894.8469" A="-93.5036" B="89.8803" C="-93.5036"/>
+<RSol X="2080.0229" Y="0.0000" Z="1894.8468" A="-93.6769" B="89.8854" C="-93.6769"/>
+<AIPos A1="0.0000" A2="-89.9987" A3="90.0051" A4="-0.0035" A5="0.0009" A6="0.1229" />
+<ASPos A1="0.0000" A2="-89.9987" A3="90.0051" A4="-0.0185" A5="0.0009" A6="0.1329"/>
+<EIPos E1="0.0000" E2="0.0000" E3="0.0000" E4="0.0000" E5="0.0000" E6="0.0000"/>
+<ESPos E1="0.0000" E2="0.0000" E3="0.0000" E4="0.0000" E5="0.0000" E6="0.0000"/>
+<MACur A1="0.0586" A2="3.1260" A3="4.3330" A4="0.2231" A5="0.3228" A6="0.2969"/>
+<MECur E1="0.0000" E2="0.0000" E3="0.0000" E4="0.0000" E5="0.0000" E6="0.0000"/>
+<Delay D="9" />
+<Tech C11="0.0000" C12="0.0000" C13="0.0000" C14="0.0000" C15="0.0000" C16="0.0000"  C17="0.0000" C18="0.0000" C19="1.0000" C110="0.0000" />
+<DiL>0</DiL>
+<Digout o1="0" o2="0" o3="0" />
+<ST_Source>8.2558</ST_Source>
+<IPOC>4218618674</IPOC>
+</Rob>
+
+   <SEND>
+      <ELEMENTS>
+         <ELEMENT TAG="DEF_RIst" TYPE="DOUBLE" INDX="INTERNAL" UNIT="0" />
+         <ELEMENT TAG="DEF_RSol" TYPE="DOUBLE" INDX="INTERNAL" UNIT="0" />
+         <ELEMENT TAG="DEF_AIPos" TYPE="DOUBLE" INDX="INTERNAL" UNIT="0" />
+         <ELEMENT TAG="DEF_ASPos" TYPE="DOUBLE" INDX="INTERNAL" UNIT="0" />
+         <ELEMENT TAG="DEF_EIPos" TYPE="DOUBLE" INDX="INTERNAL" UNIT="0" />
+         <ELEMENT TAG="DEF_ESPos" TYPE="DOUBLE" INDX="INTERNAL" UNIT="0" />
+         <ELEMENT TAG="DEF_MACur" TYPE="DOUBLE" INDX="INTERNAL" UNIT="0" />
+         <ELEMENT TAG="DEF_MECur" TYPE="DOUBLE" INDX="INTERNAL" UNIT="0" />
+         <ELEMENT TAG="DEF_Delay" TYPE="LONG" INDX="INTERNAL" UNIT="0" />
+         <ELEMENT TAG="DEF_Tech.C1" TYPE="DOUBLE" INDX="INTERNAL" UNIT="0" />
+         <ELEMENT TAG="DiL" TYPE="LONG" INDX="1" UNIT="0" />
+         <ELEMENT TAG="Digout.o1" TYPE="BOOL" INDX="2" UNIT="0" />
+         <ELEMENT TAG="Digout.o2" TYPE="BOOL" INDX="3" UNIT="0" />
+         <ELEMENT TAG="Digout.o3" TYPE="BOOL" INDX="4" UNIT="0" />
+         <ELEMENT TAG="ST_Source" TYPE="DOUBLE" INDX="5" UNIT="3601" />
+      </ELEMENTS>
+   </SEND>
+   <RECEIVE>
+      <ELEMENTS>
+         <ELEMENT TAG="DEF_EStr" TYPE="STRING" INDX="INTERNAL" UNIT="0" />
+         <ELEMENT TAG="RKorr.X" TYPE="DOUBLE" INDX="1" UNIT="1" HOLDON="1" />
+         <ELEMENT TAG="RKorr.Y" TYPE="DOUBLE" INDX="2" UNIT="1" HOLDON="1" />
+         <ELEMENT TAG="RKorr.Z" TYPE="DOUBLE" INDX="3" UNIT="1" HOLDON="1" />
+         <ELEMENT TAG="RKorr.A" TYPE="DOUBLE" INDX="4" UNIT="0" HOLDON="1" />
+         <ELEMENT TAG="RKorr.B" TYPE="DOUBLE" INDX="5" UNIT="0" HOLDON="1" />
+         <ELEMENT TAG="RKorr.C" TYPE="DOUBLE" INDX="6" UNIT="0" HOLDON="1" />
+         <ELEMENT TAG="AKorr.A1" TYPE="DOUBLE" INDX="7" UNIT="0" HOLDON="0" />
+         <ELEMENT TAG="AKorr.A2" TYPE="DOUBLE" INDX="8" UNIT="0" HOLDON="0" />
+         <ELEMENT TAG="AKorr.A3" TYPE="DOUBLE" INDX="9" UNIT="0" HOLDON="0" />
+         <ELEMENT TAG="AKorr.A4" TYPE="DOUBLE" INDX="10" UNIT="0" HOLDON="0" />
+         <ELEMENT TAG="AKorr.A5" TYPE="DOUBLE" INDX="11" UNIT="0" HOLDON="0" />
+         <ELEMENT TAG="AKorr.A6" TYPE="DOUBLE" INDX="12" UNIT="0" HOLDON="0" />
+         <ELEMENT TAG="EKorr.E1" TYPE="DOUBLE" INDX="13" UNIT="0" HOLDON="0" />
+         <ELEMENT TAG="EKorr.E2" TYPE="DOUBLE" INDX="14" UNIT="0" HOLDON="0" />
+         <ELEMENT TAG="EKorr.E3" TYPE="DOUBLE" INDX="15" UNIT="0" HOLDON="0" />
+         <ELEMENT TAG="EKorr.E4" TYPE="DOUBLE" INDX="16" UNIT="0" HOLDON="0" />
+         <ELEMENT TAG="EKorr.E5" TYPE="DOUBLE" INDX="17" UNIT="0" HOLDON="0" />
+         <ELEMENT TAG="EKorr.E6" TYPE="DOUBLE" INDX="18" UNIT="0" HOLDON="0" />
+         <ELEMENT TAG="DEF_Tech.T2" TYPE="DOUBLE" INDX="INTERNAL" UNIT="0" />
+         <ELEMENT TAG="DiO" TYPE="LONG" INDX="19" UNIT="0" HOLDON="1" />
+      </ELEMENTS>
+   </RECEIVE>
+</ROOT>
